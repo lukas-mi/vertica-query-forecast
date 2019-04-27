@@ -1,0 +1,26 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/project-build
+    docker:
+      - image: openjdk:8u212-jdk-stretch
+    environment:
+      SBT_VERSION: 1.2.8
+    steps:
+      - run:
+          name: Get sbt
+          command: |
+            curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb
+            dpkg -i sbt-$SBT_VERSION.deb
+            rm sbt-$SBT_VERSION.deb
+      - checkout
+      - restore_cache:
+          key: cache-{{ checksum "build.sbt" }}-{{ checksum "project/plugins.sbt" }}-{{ checksum "project/build.properties" }}
+      - run:
+          name: Compile, test, check formatting
+          command: sbt clean compile test scalafmtCheck
+      - save_cache:
+          key: cache-{{ checksum "build.sbt" }}-{{ checksum "project/plugins.sbt" }}-{{ checksum "project/build.properties" }}
+          paths:
+            - "~/.ivy2"
+            - "~/.sbt"
