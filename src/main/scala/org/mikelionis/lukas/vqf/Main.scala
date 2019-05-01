@@ -84,7 +84,7 @@ object Main extends App with Logging {
     log.info("user queries:\n" + FormattingUtils.prettyPairs(queriesByUser.mapValues(_.size)) + "\n")
 
     val querySimilarityMethod = new AligonMethod(config.weights)
-    val queryClusteringMethod = new DensityBasedClusteringMethod(querySimilarityMethod, 5, 25)
+    val queryClusteringMethod = new DensityBasedMethod(querySimilarityMethod, 5, 25)
     val modelFactory = new MarkovModelFactory(querySimilarityMethod, queryClusteringMethod, 1)
     val modelsByUser = queriesByUser.map { case (user, userQueries) => user -> modelFactory.createModel(userQueries) }
 

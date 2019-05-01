@@ -6,10 +6,10 @@ import similarity._
 
 import scala.util.Random
 
-class DensityBasedClusteringMethod(querySimilarityMethod: QuerySimilarityMethod, nOfSeeds: Int, maxClusterSize: Int)
+class DensityBasedMethod(querySimilarityMethod: QuerySimilarityMethod, nOfSeeds: Int, maxClusterSize: Int)
     extends QueryClusteringMethod {
   require(nOfSeeds > 0, "nOfSeeds has to be greater than 0")
-  require(maxClusterSize > 1, "maxClusterSize has to be greater than 1")
+  require(maxClusterSize >= 1, "maxClusterSize has to be greater or equal to 1")
 
   private val queryClusterSimilarityMethod = new QueryClusterSimilarityMethod(querySimilarityMethod)
 
