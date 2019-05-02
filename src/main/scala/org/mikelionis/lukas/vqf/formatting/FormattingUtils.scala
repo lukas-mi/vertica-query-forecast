@@ -14,6 +14,8 @@ object FormattingUtils {
       }
       .mkString(", ")
 
+  def prettyQuery(query: Query): String = prettyColumns(query.analysed.columns)
+
   def prettyGroups(itemGroups: Map[String, Iterable[String]]): String =
     itemGroups
       .flatMap {

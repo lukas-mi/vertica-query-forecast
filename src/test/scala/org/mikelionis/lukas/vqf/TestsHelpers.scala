@@ -26,7 +26,7 @@ object TestsHelpers extends Matchers {
 
   def markovModelFactory(
       querySimilarityMethod: QuerySimilarityMethod = aligonMethod(),
-      queryClusteringMethod: QueryClusteringMethod = new DensityBasedClusteringMethod(aligonMethod(), 5, 2),
+      queryClusteringMethod: QueryClusteringMethod = new DensityBasedMethod(aligonMethod(), 5, 2),
       topNQueries: Int = 1
   ): MarkovModelFactory = new MarkovModelFactory(querySimilarityMethod, queryClusteringMethod, topNQueries)
 

@@ -21,6 +21,7 @@ object Main extends App with Logging {
       queriesPath: File = new File("."),
       users: Seq[String] = Seq.empty,
       weights: Weights = Weights.default,
+      eps: Double = 0.0,
       port: Int = 8000,
       vqAnalyserEndpoint: Uri = Uri.Empty
   )
@@ -55,9 +56,14 @@ object Main extends App with Logging {
           .required()
           .text("Weights use for query similarity")
           .action((a, c) => c.copy(weights = Weights(a("projection"), a("selection"), a("groupBy")))),
+        opt[Double]("eps")
+          .required()
+          .text("Epsilon parameter for DBSCAN clustering algorithm")
+          .validate(a => if (a > 0.0 && a < 1.0) success else failure("eps has to be within (0.0,1.0) interval"))
+          .action((a, c) => c.copy(eps = a)),
         opt[Int]("port")
-          .text("Port to run the service on")
           .optional()
+          .text("Port to run the service on")
           .action((a, c) => c.copy(port = a)),
         opt[String]("vq-analyser-endpoint")
           .required()
@@ -84,7 +90,7 @@ object Main extends App with Logging {
     log.info("user queries:\n" + FormattingUtils.prettyPairs(queriesByUser.mapValues(_.size)) + "\n")
 
     val querySimilarityMethod = new AligonMethod(config.weights)
-    val queryClusteringMethod = new DensityBasedClusteringMethod(querySimilarityMethod, 5, 25)
+    val queryClusteringMethod = new DbscanMinNoiseMethod(config.eps, 1.2, 1, true, querySimilarityMethod)
     val modelFactory = new MarkovModelFactory(querySimilarityMethod, queryClusteringMethod, 1)
     val modelsByUser = queriesByUser.map { case (user, userQueries) => user -> modelFactory.createModel(userQueries) }
 
