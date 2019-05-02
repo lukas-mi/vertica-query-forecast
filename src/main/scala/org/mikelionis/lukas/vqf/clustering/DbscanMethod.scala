@@ -17,10 +17,10 @@ class DbscanMethod(
 
   private object Status extends Enumeration {
     type Status = Status.Value
-    val UNCLASSIFIED, CLASSIFIED, NOISE = Value
+    val UNVISITED, VISITED, NOISE = Value
   }
 
-  private case class State(status: Status.Status = Status.UNCLASSIFIED, clusterId: Int = -1)
+  private case class State(status: Status.Status = Status.UNVISITED, clusterId: Int = -1)
 
   private val stateMap = mutable.Map.empty[Int, State].withDefaultValue(State())
 
@@ -30,7 +30,7 @@ class DbscanMethod(
 
     queries.foreach { query =>
       val status = stateMap(query.metadata.epoch).status
-      if (status == Status.UNCLASSIFIED) {
+      if (status == Status.UNVISITED) {
         val neighbors = neighborhood(query.metadata.epoch)
         if (neighbors.size < minNeighborSize) {
           stateMap(query.metadata.epoch) = State(Status.NOISE)
@@ -56,7 +56,7 @@ class DbscanMethod(
     }
 
   private def expand(elem: Query, neighbors: Seq[Query], neighborhood: ParMap[Int, Seq[Query]], clusterId: Int): Int = {
-    stateMap(elem.metadata.epoch) = State(Status.CLASSIFIED, clusterId)
+    stateMap(elem.metadata.epoch) = State(Status.VISITED, clusterId)
     val queue = new mutable.Queue[Query]()
     queue ++= neighbors
 
@@ -65,9 +65,9 @@ class DbscanMethod(
       val status = stateMap(neighbor.metadata.epoch).status
 
       if (status == Status.NOISE) {
-        stateMap(neighbor.metadata.epoch) = State(Status.CLASSIFIED, clusterId)
-      } else if (status == Status.UNCLASSIFIED) {
-        stateMap(neighbor.metadata.epoch) = State(Status.CLASSIFIED, clusterId)
+        stateMap(neighbor.metadata.epoch) = State(Status.VISITED, clusterId)
+      } else if (status == Status.UNVISITED) {
+        stateMap(neighbor.metadata.epoch) = State(Status.VISITED, clusterId)
         val neighborNeighbors = neighborhood(neighbor.metadata.epoch)
         if (neighborNeighbors.size >= minNeighborSize) {
           queue ++= neighborNeighbors

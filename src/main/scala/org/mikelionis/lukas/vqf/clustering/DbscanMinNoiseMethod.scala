@@ -32,7 +32,9 @@ class DbscanMinNoiseMethod(
         if (withNoise) noiseCluster +: accClusters else accClusters
       }
 
-    val newClusters = runDbscan(eps, queries)
-    loop(eps * epsGrowthFactor, newClusters.head, newClusters.tail)
+    if (queries.nonEmpty) {
+      val newClusters = runDbscan(eps, queries)
+      loop(eps * epsGrowthFactor, newClusters.head, newClusters.tail)
+    } else Vector.empty
   }
 }
