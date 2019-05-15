@@ -13,7 +13,7 @@ class DbscanMethod(
     withNoise: Boolean,
     similarityMethod: QuerySimilarityMethod
 ) extends QueryClusteringMethod {
-  require(eps > 0.0 && eps < 1.0, "eps has to be in (0.0;1.0) range")
+  require(eps >= 0.0 && eps <= 1.0, "eps has to be within [0.0;1.0] range")
 
   private object Status extends Enumeration {
     type Status = Status.Value
@@ -88,6 +88,7 @@ class DbscanMethod(
       .sortBy { case (clusterId, _) => clusterId }
       .map { case (_, clusterQueries) => clusterQueries.map(_._2) }
 
-    if (withNoise || clusters.size < 2) clusters else clusters.tail
+    if (withNoise || clusters.size < 2) clusters
+    else clusters.tail
   }
 }
