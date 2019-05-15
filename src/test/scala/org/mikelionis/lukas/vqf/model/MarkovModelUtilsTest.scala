@@ -56,7 +56,7 @@ class MarkovModelUtilsTest extends FunSpec with Matchers {
 
     val preparedQueries =
       MarkovModelUtils.groupQueries(Random.shuffle(session1Queries ::: session2Queries ::: session3Queries))
-    val expectedQueries = Map(
+    val expectedQueries = List(
       session1 -> List(s1q1, s1q2, s1q4),
       session2 -> List(s2q1, s2q2, s2q3)
     )

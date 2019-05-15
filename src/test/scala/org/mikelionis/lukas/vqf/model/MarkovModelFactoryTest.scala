@@ -58,7 +58,7 @@ class MarkovModelFactoryTest extends FunSpec with Matchers {
     ).map(row => row.map(_ / row.sum))
 
     val querySimilarityMethod = aligonMethod()
-    val model = new MarkovModel(MarkovModelData(clusters, matrix, querySimilarityMethod))
+    val model = new MarkovModel(MarkovModelData(clusters, matrix, querySimilarityMethod), 0.0, 0.0)
 
     val factory = markovModelFactory()
     val modelFile = Files.createTempFile("markov_model", "").toFile

@@ -26,9 +26,11 @@ object TestsHelpers extends Matchers {
 
   def markovModelFactory(
       querySimilarityMethod: QuerySimilarityMethod = aligonMethod(),
-      queryClusteringMethod: QueryClusteringMethod = new DensityBasedMethod(aligonMethod(), 5, 2),
-      topNQueries: Int = 1
-  ): MarkovModelFactory = new MarkovModelFactory(querySimilarityMethod, queryClusteringMethod, topNQueries)
+      queryClusteringMethod: QueryClusteringMethod = new DbscanMinNoiseMethod(0.3, 1.2, 1, false, aligonMethod()),
+      topNQueries: Int = 1,
+      probabilityCap: Double = 0.0
+  ): MarkovModelFactory =
+    new MarkovModelFactory(querySimilarityMethod, queryClusteringMethod, topNQueries, probabilityCap)
 
   def makeQuery(columns: ColumnWithClause*): AnalysedQuery =
     AnalysedQuery(Statement.SELECT, Set.empty, Set.empty, columns.toSet, Set.empty)
