@@ -22,10 +22,13 @@ class MarkovModelFactory(
   override def createModel(queries: List[Query]): MarkovModel = {
     val groupedQueries = MarkovModelUtils.groupQueries(queries)
     val clusters = queryClusteringMethod.clusterQueries(groupedQueries.flatMap(_._2))
-    val clusterIndexes = groupedQueries.flatMap {
-      case (_, sessionQueries) =>
-        MarkovModelUtils.queriesToClusterIndexPairs(sessionQueries, clusters, queryClusterSimilarityMethod)
-    }
+    val clusterIndexes = groupedQueries.par
+      .map {
+        case (_, sessionQueries) =>
+          MarkovModelUtils.queriesToClusterIndexPairs(sessionQueries, clusters, queryClusterSimilarityMethod)
+      }
+      .toList
+      .flatten
     val matrix = MarkovModelUtils.createProbabilityMatrix(clusterIndexes, clusters.size)
     new MarkovModel(MarkovModelData(clusters, matrix, querySimilarityMethod), probabilityCap, similarityCap)
   }
