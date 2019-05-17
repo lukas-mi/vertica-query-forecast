@@ -28,6 +28,4 @@ object Features {
 
     new Features(projectionColumns, selectionColumns, groupByColumns)
   }
-
-  def apply(query: Query): Features = Features(query.analysed)
 }

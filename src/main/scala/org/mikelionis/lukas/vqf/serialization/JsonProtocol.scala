@@ -48,6 +48,34 @@ object JsonProtocol extends DefaultJsonProtocol {
     override def write(obj: Statement): JsValue = JsString(obj.toString)
   }
 
+  implicit object AnalysedQueryJsonFormat extends RootJsonFormat[AnalysedQuery] {
+    override def read(json: JsValue): AnalysedQuery = json match {
+      case JsObject(fields) =>
+        val keys = Array("statement", "tables", "lineage", "columns", "joins")
+        keys.flatMap(fields.get) match {
+          case Array(statement, tables, lineage, columns, joins) =>
+            AnalysedQuery(
+              statement.convertTo[Statement],
+              tables.convertTo[Set[Table]],
+              lineage.convertTo[Set[Lineage]],
+              columns.convertTo[Set[ColumnWithClause]],
+              joins.convertTo[Set[Join]]
+            )
+          case _ =>
+            throw DeserializationException(s"Incorrect values or missing required keys ('${keys.mkString(",")}')")
+        }
+      case _ => throw DeserializationException(s"JsObject expected, got '${json.getClass.getName}'")
+    }
+
+    override def write(obj: AnalysedQuery): JsValue = JsObject(
+      "statement" -> obj.statement.toJson,
+      "tables" -> obj.tables.toJson,
+      "lineage" -> obj.lineage.toJson,
+      "columns" -> obj.columns.toJson,
+      "joins" -> obj.joins.toJson
+    )
+  }
+
   implicit object QueryMetadataJsonFormat extends RootJsonFormat[QueryMetadata] {
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
@@ -105,7 +133,6 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val columnWithClauseFormat: RootJsonFormat[ColumnWithClause] = jsonFormat2(ColumnWithClause.apply)
   implicit val lineageFormat: RootJsonFormat[Lineage] = jsonFormat2(Lineage.apply)
   implicit val joinFormat: RootJsonFormat[Join] = jsonFormat2(Join.apply)
-  implicit val analysedQueryFormat: RootJsonFormat[AnalysedQuery] = jsonFormat5(AnalysedQuery.apply)
   implicit val queryFormat: RootJsonFormat[Query] = jsonFormat3(Query.apply)
   implicit val weightsFormat: RootJsonFormat[Weights] = jsonFormat3(Weights.apply)
   implicit val markovModelDataFormat: RootJsonFormat[MarkovModelData] = jsonFormat3(MarkovModelData.apply)

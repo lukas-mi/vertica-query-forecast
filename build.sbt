@@ -14,3 +14,9 @@ libraryDependencies ++= Seq(
   "ch.qos.logback"    % "logback-classic"       % "1.2.3",
   "org.scalatest"     %% "scalatest"            % "3.0.7" % "test"
 )
+
+mainClass in assembly := Some("org.mikelionis.lukas.vqf.Main")
+
+test in assembly := {}
+
+assemblyJarName in assembly := "vertica-query-forecast.jar"

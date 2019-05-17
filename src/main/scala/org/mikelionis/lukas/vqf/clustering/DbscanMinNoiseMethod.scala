@@ -11,7 +11,7 @@ class DbscanMinNoiseMethod(
     withNoise: Boolean,
     similarityMethod: QuerySimilarityMethod
 ) extends QueryClusteringMethod {
-  require(eps > 0.0 && eps < 1.0, "eps has to be in (0.0;1.0) range")
+  require(eps >= 0.0 && eps <= 1.0, "eps has to be in [0.0;1.0] range")
   require(epsGrowthFactor > 1.0, "epsGrowthFactor has to be greater than 1.0")
   require(minNeighborsSize >= 1, "minNeighborsSize has to be greater than 1")
 
@@ -34,7 +34,8 @@ class DbscanMinNoiseMethod(
 
     if (queries.nonEmpty) {
       val newClusters = runDbscan(eps, queries)
-      loop(eps * epsGrowthFactor, newClusters.head, newClusters.tail)
+      if (eps == 0.0 || eps == 1.0) newClusters
+      else loop(eps * epsGrowthFactor, newClusters.head, newClusters.tail)
     } else Vector.empty
   }
 }

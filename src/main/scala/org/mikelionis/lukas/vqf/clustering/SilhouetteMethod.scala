@@ -20,19 +20,20 @@ class SilhouetteMethod(querySimilarityMethod: QuerySimilarityMethod) extends Que
       val silhouetteCoefficients = for {
         (cluster, index) <- indexedClusters
         query <- cluster
-      } yield {
-        val intraClusterDissimilarity = queryClusterSimilarityMethod.measureDissimilarity(query, cluster)
-        val interClusterDissimilarityMin = indexedClusters.foldLeft(Double.MaxValue) {
-          case (minAvg, (otherCluster, otherClusterIndex)) =>
-            if (otherClusterIndex != index) {
-              val avg = queryClusterSimilarityMethod.measureDissimilarity(query, otherCluster)
-              if (avg < minAvg) avg else minAvg
-            } else minAvg
-        }
+      } yield
+        if (cluster.size > 1) {
+          val intraClusterDissimilarity = queryClusterSimilarityMethod.measureDissimilarity(query, cluster)
+          val interClusterDissimilarityMin = indexedClusters.foldLeft(Double.MaxValue) {
+            case (minAvg, (otherCluster, otherClusterIndex)) =>
+              if (otherClusterIndex != index) {
+                val avg = queryClusterSimilarityMethod.measureDissimilarity(query, otherCluster)
+                if (avg < minAvg) avg else minAvg
+              } else minAvg
+          }
 
-        calcSilhouette(intraClusterDissimilarity, interClusterDissimilarityMin)
-      }
+          calcSilhouette(intraClusterDissimilarity, interClusterDissimilarityMin)
+        } else 0.0
 
       silhouetteCoefficients.sum / silhouetteCoefficients.size
-    } else 0
+    } else 0.0
 }

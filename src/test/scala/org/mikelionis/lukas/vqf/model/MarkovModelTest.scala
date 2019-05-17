@@ -56,7 +56,7 @@ class MarkovModelTest extends FunSpec with Matchers {
       Vector(1.0, 0.0, 3.0)
     ).map(row => row.map(_ / row.sum))
 
-    val model = new MarkovModel(MarkovModelData(clusters, matrix, aligonMethod()))
+    val model = new MarkovModel(MarkovModelData(clusters, matrix, aligonMethod()), 0.0, 0.0)
 
     model.forecastQueries(query1.analysed) shouldBe List(query2)
     model.forecastQueries(query3.analysed) shouldBe List(query4)
@@ -96,7 +96,7 @@ class MarkovModelTest extends FunSpec with Matchers {
       Vector(0.0, 0.0, 0.0)
     ).map(row => row.map(_ / row.sum))
 
-    val model = new MarkovModel(MarkovModelData(clusters, matrix, aligonMethod()))
+    val model = new MarkovModel(MarkovModelData(clusters, matrix, aligonMethod()), -1, -1)
 
     model.forecastQueries(query1.analysed) shouldBe List(query2)
     model.forecastQueries(query2.analysed) shouldBe List(query3)

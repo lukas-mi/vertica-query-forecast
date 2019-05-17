@@ -33,8 +33,9 @@ class AligonMethod(val weights: Weights) extends QuerySimilarityMethod {
   }
 
   override def measureSimilarity(query1: AnalysedQuery, query2: AnalysedQuery): Double =
-    calculate(Features(query1), Features(query2))(calcJaccardSimilarity)
+    calculate(query1.features, query2.features)(calcJaccardSimilarity)
 
   override def measureDissimilarity(query1: AnalysedQuery, query2: AnalysedQuery): Double =
-    calculate(Features(query1), Features(query2))(calcJaccardDissimilarity)
+    calculate(query1.features, query2.features)(calcJaccardDissimilarity)
+
 }

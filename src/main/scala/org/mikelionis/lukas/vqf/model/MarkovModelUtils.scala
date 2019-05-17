@@ -1,6 +1,8 @@
 package org.mikelionis.lukas.vqf
 package model
 
+import java.time.ZoneOffset
+
 import query._
 import clustering._
 
@@ -60,12 +62,22 @@ object MarkovModelUtils {
   // 2. group queries by session
   // 3. remove consecutive duplicate queries from each sessions
   // 4. remove sessions with only one query
-  def groupQueries(queries: List[Query]): Map[String, List[Query]] =
+  // 5. sort sessions by their first query start time
+  def groupQueries(queries: List[Query]): List[(String, List[Query])] =
     queries
       .filter(_.analysed.columns.nonEmpty)
       .groupBy(_.metadata.session)
       .mapValues(sessionQueries => removeDuplicates(sessionQueries.sortBy(_.metadata.epoch), List.empty).reverse)
       .filter { case (_, sessionQueries) => sessionQueries.size > 1 }
+      .toList
+      .sortBy {
+        case (_, sessionQueries) =>
+          def accFun(minStart: Long, currentQuery: Query): Long = {
+            val currentStart = currentQuery.metadata.start.toEpochSecond(ZoneOffset.UTC)
+            if (currentStart < minStart) currentStart else minStart
+          }
+          sessionQueries.foldLeft(Long.MaxValue)(accFun)
+      }
 
   def createProbabilityMatrix(indexes: List[(Int, Int)], dimension: Int): Vector[Vector[Double]] = {
     val matrix = Array.fill(dimension)(Array.fill(dimension)(0.0))
